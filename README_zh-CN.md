@@ -64,7 +64,7 @@ em := emitter.New()
 em.Fire(events.New("event"))
 ```
 
-带标签和参数:
+通过标签和参数发送事件(内部会根据标签名自动创建事件对象):
 ```go
 em.Fire("event")
 // or with event params
