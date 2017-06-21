@@ -48,7 +48,7 @@ func (event *Event) String() string {
 	return event.Key
 }
 
-func SliceToMap(key string, value interface{}, args ...interface{}) meta.Map {
+func ToMap(key string, value interface{}, args ...interface{}) meta.Map {
 	context := meta.Map{key: value}
 	for i, j := 0, len(args); i < j; i += 2 {
 		if i%2 == 0 {
