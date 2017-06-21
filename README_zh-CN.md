@@ -1,31 +1,30 @@
-events [简体中文](https://github.com/admpub/events/blob/master/README_zh-CN.md)
+events
 ===========
 
-`events` is a small [Observer](https://en.wikipedia.org/wiki/Observer_pattern) implemetation for golang
+`events` 是一个golang版本的观察者模式实现 [Observer](https://en.wikipedia.org/wiki/Observer_pattern)
 
 Import
 ------
 
-`events` available through github.com/admpub/events
-interface:
+`events` 通过 github.com/admpub/events 导入:
 ```go
 import "github.com/admpub/events"
 ```
 
-Usage
+用法
 -----
 
-### Event
+### 事件
 
-Creating standalone event object:
+创建独立的事件对象:
 ```go
 event := events.New("eventName")
 event.Meta["key"] = value
 ```
 
-### Emitter
+### 发射器
 
-Package `emiter` implements `events.Emitter` interface
+包 `emiter` 实现了 `events.Emitter` 接口
 ```go
 import (
 	"github.com/admpub/events"
@@ -33,9 +32,9 @@ import (
 )
 ```
 
-#### Create
+#### 创建发射器
 
-Emitter could combined with other structs via common `events.Emitter` interface:
+发射器通过可以 `events.Emitter` 接口嵌入到其它的结构体内:
 ```go
 type Object struct {
 	events.Emitter
@@ -43,10 +42,10 @@ type Object struct {
 
 object := Object{emitter.New()}
 ```
-> it's preferable usage example,
-> it simplify test cases of base structs
+> 这是一个典型范例,
+> 这里简化了结构体，实际情况下应该比这个复杂
 
-Emitter could be created with specific dispatch strategy:
+可以用特定的调度策略来创建发射器:
 ```go
 import "github.com/admpub/events/dispatcher"
 ```
@@ -56,16 +55,16 @@ emitter.New(dispatcher.BroadcastFactory)
 emitter.New(dispatcher.ParallelBroadcastFactory)
 ```
 
-#### Emmit event
+#### 发射事件
 
-Emit concrete event object:
+发射具体事件对象:
 
 ```go
 em := emitter.New()
 em.Fire(events.New("event"))
 ```
 
-Emit event with label & params:
+带标签和参数:
 ```go
 em.Fire("event")
 // or with event params
@@ -73,11 +72,11 @@ em.Fire("event", meta.Map{"key": "value"})
 // or with plain map
 em.Fire("event", map[string]interface{}{"key": "value"})
 ````
-> Be carefully with concurrent access to `event.Meta`
+> 在并发时小心访问 `event.Meta`
 
-#### Subscribe for event
+#### 订阅事件
 
-Emitter supports only `events.Listener` interface for subscription, but it can be extended by embedded types:
+发射器仅支持用“events.Listener”接口来订阅，但可以通过嵌入式类型进行扩展:
 
 * channels
 ```go
@@ -105,7 +104,7 @@ object.On("event", events.Callback(func(event events.Event){
 ```
 
 ### Ticker
-Package `ticker` adds support of periodic events on top of events.Emitter
+包 `ticker` 在 `events.Emitter` 之上增加了对定期事件的支持
 
 ```go
 import (
