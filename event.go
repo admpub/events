@@ -73,9 +73,14 @@ func ToMap(key string, value interface{}, args ...interface{}) meta.Map {
 	return context
 }
 
-func Map(context meta.Map, sync ...bool) meta.Map {
-	if len(sync) > 0 && sync[0] {
-		context["_sync"] = struct{}{}
+func Map(context meta.Map, sync ...int) meta.Map {
+	if len(sync) > 0 {
+		switch sync[0] {
+		case 1:
+			context["_sync"] = struct{}{}
+		case 2:
+			context["_wait"] = struct{}{}
+		}
 	}
 	return context
 }

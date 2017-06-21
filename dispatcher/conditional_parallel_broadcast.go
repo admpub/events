@@ -1,6 +1,8 @@
 package dispatcher
 
 import (
+	"sync"
+
 	"github.com/admpub/events"
 )
 
@@ -25,6 +27,16 @@ func (dispatcher *ConditionalParallelBroadcastDispatcher) Dispatch(event events.
 			}
 			subscriber.Handle(event)
 		}
+	} else if _, ok := event.Context["_wait"]; ok {
+		wg := &sync.WaitGroup{}
+		wg.Add(len(dispatcher.Subscribers))
+		for _, subscriber := range dispatcher.Subscribers {
+			go func() {
+				subscriber.Handle(event)
+				wg.Done()
+			}()
+		}
+		wg.Wait()
 	} else {
 		for _, subscriber := range dispatcher.Subscribers {
 			go subscriber.Handle(event)
