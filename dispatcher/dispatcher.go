@@ -22,3 +22,14 @@ func New(typ Type) events.Dispatcher {
 		return ParallelBroadcastFactory()
 	}
 }
+
+func Factory(typ Type) events.DispatcherFactory {
+	switch typ {
+	case Sync:
+		return BroadcastFactory
+	case Cond:
+		return ConditionalParallelBroadcastFactory
+	default:
+		return ParallelBroadcastFactory
+	}
+}
