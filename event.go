@@ -5,9 +5,8 @@ import (
 )
 
 type Emitter interface {
-	On(string, ...Listener) Emitter
-	AddEventListener(string, ...Listener)
-	RemoveEventListeners(string)
+	On(string, ...Listener) Emitter //AddEventListener
+	Off(string) Emitter             //RemoveEventListeners
 	Fire(interface{}, ...meta.Map)
 }
 

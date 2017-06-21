@@ -25,19 +25,16 @@ type Emitter struct {
 }
 
 func (emitter Emitter) On(event string, handlers ...events.Listener) events.Emitter {
-	emitter.AddEventListener(event, handlers...)
-	return emitter
-}
-
-func (emitter Emitter) AddEventListener(event string, handlers ...events.Listener) {
 	if _, exists := emitter.Dispatchers[event]; !exists {
 		emitter.Dispatchers[event] = emitter.DispatcherFactory()
 	}
 	emitter.Dispatchers[event].AddSubscribers(handlers...)
+	return emitter
 }
 
-func (emitter Emitter) RemoveEventListeners(event string) {
+func (emitter Emitter) Off(event string) events.Emitter {
 	delete(emitter.Dispatchers, event)
+	return emitter
 }
 
 func (emitter Emitter) Fire(e interface{}, context ...meta.Map) {

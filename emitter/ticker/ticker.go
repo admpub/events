@@ -55,7 +55,7 @@ func (emitter *PeriodicEmitter) RegisterEvent(event string, value interface{}, h
 	emitter.events[event] = timer
 
 	if len(handlers) > 0 {
-		emitter.AddEventListener(event, handlers...)
+		emitter.On(event, handlers...)
 	}
 
 	emitter.restart <- needRestart{}
@@ -72,7 +72,7 @@ func (emitter *PeriodicEmitter) RemoveEvent(event string) {
 
 	delete(emitter.events, event)
 	emitter.refresh()
-	emitter.RemoveEventListeners(event)
+	emitter.Off(event)
 	emitter.restart <- needRestart{}
 }
 

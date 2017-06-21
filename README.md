@@ -83,7 +83,7 @@ Emitter supports only `events.Listener` interface for subscription, but it can b
 ```go
 channel := make(chan events.Event)
 
-object.AddEventListener("event", events.Stream(channel))
+object.On("event", events.Stream(channel))
 ```
 * handlers
 ```go
@@ -93,13 +93,13 @@ func (Handler) Handle (events.Event) {
 	// handle events
 }
 
-object.AddEventListener("event", Handler{})
+object.On("event", Handler{})
 // or
 object.On("event", Handler{}, Handler{}).On("anotherEvent", Handler{})
 ```
 * functions
 ```go
-object.AddEventListener("event", events.Callback(func(event events.Event){
+object.On("event", events.Callback(func(event events.Event){
 	// handle event
 }))
 ```
