@@ -1,12 +1,19 @@
 package emitter
 
 import (
+	"sync"
+
 	"github.com/admpub/events"
 	"github.com/admpub/events/dispatcher"
 	"github.com/admpub/events/meta"
 )
 
-var DefaultDispatcherFactory = dispatcher.BroadcastFactory
+var (
+	DefaultDispatcherFactory = dispatcher.BroadcastFactory
+	DefaultAsyncEmitter      = New(dispatcher.ParallelBroadcastFactory)
+	DefaultSyncEmitter       = New(dispatcher.BroadcastFactory)
+	DefaultCondEmitter       = New(dispatcher.ConditionalParallelBroadcastFactory)
+)
 
 func New(factory ...events.DispatcherFactory) *Emitter {
 	emitter := new(Emitter)
@@ -20,24 +27,30 @@ func New(factory ...events.DispatcherFactory) *Emitter {
 }
 
 type Emitter struct {
+	sync.Mutex
 	DispatcherFactory events.DispatcherFactory
 	Dispatchers       map[string]events.Dispatcher
 }
 
 func (emitter Emitter) On(event string, handlers ...events.Listener) events.Emitter {
+	emitter.Lock()
 	if _, exists := emitter.Dispatchers[event]; !exists {
 		emitter.Dispatchers[event] = emitter.DispatcherFactory()
 	}
 	emitter.Dispatchers[event].AddSubscribers(handlers...)
+	emitter.Unlock()
 	return emitter
 }
 
 func (emitter Emitter) Off(event string) events.Emitter {
+	emitter.Lock()
 	delete(emitter.Dispatchers, event)
+	emitter.Unlock()
 	return emitter
 }
 
 func (emitter Emitter) Fire(e interface{}, context ...meta.Map) {
+	emitter.Lock()
 	var event events.Event
 
 	switch e := e.(type) {
@@ -54,4 +67,5 @@ func (emitter Emitter) Fire(e interface{}, context ...meta.Map) {
 	if dispatcher, ok := emitter.Dispatchers[event.Key]; ok {
 		dispatcher.Dispatch(event)
 	}
+	emitter.Unlock()
 }
