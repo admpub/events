@@ -36,16 +36,29 @@ func (callback Callback) Handle(event Event) {
 }
 
 func New(name string) Event {
-	return Event{name, meta.Map{}}
+	return Event{
+		Key:     name,
+		Context: meta.Map{},
+	}
 }
 
 type Event struct {
 	Key     string
 	Context meta.Map
+	aborted bool
 }
 
 func (event *Event) String() string {
 	return event.Key
+}
+
+func (event *Event) Abort() *Event {
+	event.aborted = true
+	return event
+}
+
+func (event *Event) Aborted() bool {
+	return event.aborted
 }
 
 func ToMap(key string, value interface{}, args ...interface{}) meta.Map {

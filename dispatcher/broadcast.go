@@ -18,6 +18,9 @@ func (dispatcher *BroadcastDispatcher) AddSubscribers(subscribers ...events.List
 
 func (dispatcher *BroadcastDispatcher) Dispatch(event events.Event) {
 	for _, subscriber := range dispatcher.Subscribers {
+		if event.Aborted() {
+			return
+		}
 		subscriber.Handle(event)
 	}
 }

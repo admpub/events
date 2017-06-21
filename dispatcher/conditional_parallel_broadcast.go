@@ -20,6 +20,9 @@ func (dispatcher *ConditionalParallelBroadcastDispatcher) Dispatch(event events.
 	if _, ok := event.Context["_sync"]; ok {
 		delete(event.Context, "_sync")
 		for _, subscriber := range dispatcher.Subscribers {
+			if event.Aborted() {
+				return
+			}
 			subscriber.Handle(event)
 		}
 	} else {
