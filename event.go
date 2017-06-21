@@ -1,6 +1,8 @@
 package events
 
 import (
+	"fmt"
+
 	"github.com/admpub/events/meta"
 )
 
@@ -44,4 +46,23 @@ type Event struct {
 
 func (event *Event) String() string {
 	return event.Key
+}
+
+func SliceToMap(key string, value interface{}, args ...interface{}) meta.Map {
+	context := meta.Map{key: value}
+	for i, j := 0, len(args); i < j; i += 2 {
+		if i%2 == 0 {
+			key = fmt.Sprint(args[i])
+			break
+		}
+		context[key] = args[i]
+	}
+	return context
+}
+
+func Map(context meta.Map, sync ...bool) meta.Map {
+	if len(sync) > 0 && sync[0] {
+		context["_sync"] = struct{}{}
+	}
+	return context
 }
