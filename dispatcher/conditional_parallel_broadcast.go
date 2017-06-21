@@ -32,10 +32,10 @@ func (dispatcher *ConditionalParallelBroadcastDispatcher) Dispatch(event events.
 		wg := &sync.WaitGroup{}
 		wg.Add(len(dispatcher.Subscribers))
 		for _, subscriber := range dispatcher.Subscribers {
-			go func() {
+			go func(subscriber events.Listener) {
 				subscriber.Handle(event)
 				wg.Done()
-			}()
+			}(subscriber)
 		}
 		wg.Wait()
 	} else {
