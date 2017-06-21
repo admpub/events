@@ -66,7 +66,7 @@ func ToMap(key string, value interface{}, args ...interface{}) meta.Map {
 	for i, j := 0, len(args); i < j; i += 2 {
 		if i%2 == 0 {
 			key = fmt.Sprint(args[i])
-			break
+			continue
 		}
 		context[key] = args[i]
 	}
