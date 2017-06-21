@@ -28,6 +28,7 @@ func (dispatcher *ConditionalParallelBroadcastDispatcher) Dispatch(event events.
 			subscriber.Handle(event)
 		}
 	} else if _, ok := event.Context["_wait"]; ok {
+		delete(event.Context, "_wait")
 		wg := &sync.WaitGroup{}
 		wg.Add(len(dispatcher.Subscribers))
 		for _, subscriber := range dispatcher.Subscribers {
