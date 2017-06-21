@@ -1,7 +1,7 @@
 package dispatcher
 
 import (
-	"gopkg.in/ADone/go.events.v1"
+	"github.com/admpub/events"
 )
 
 func BroadcastFactory() events.Dispatcher {

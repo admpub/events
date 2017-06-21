@@ -1,7 +1,7 @@
 package ticker
 
 import (
-	"gopkg.in/ADone/go.events.v1"
+	"github.com/admpub/events"
 
 	"reflect"
 	"sync"

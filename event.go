@@ -1,7 +1,7 @@
 package events
 
 import (
-	"gopkg.in/ADone/go.meta.v1"
+	"github.com/admpub/events/meta"
 )
 
 type Emitter interface {

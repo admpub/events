@@ -1,10 +1,9 @@
 package emitter
 
 import (
-	"gopkg.in/ADone/go.meta.v1"
-
-	"gopkg.in/ADone/go.events.v1"
-	"gopkg.in/ADone/go.events.v1/dispatcher"
+	"github.com/admpub/events"
+	"github.com/admpub/events/dispatcher"
+	"github.com/admpub/events/meta"
 )
 
 var DefaultDispatcherFactory = dispatcher.BroadcastFactory

@@ -1,21 +1,15 @@
-go.events
+events
 ===========
 
-`go.events` is a small [Observer](https://en.wikipedia.org/wiki/Observer_pattern) implemetation for golang
-
-[![GoDoc](https://godoc.org/github.com/ADone/go.events?status.svg)](https://godoc.org/github.com/ADone/go.events)
-[![Join the chat at https://gitter.im/ADone/go.events](https://badges.gitter.im/ADone/go.events.svg)](https://gitter.im/ADone/go.events?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+`events` is a small [Observer](https://en.wikipedia.org/wiki/Observer_pattern) implemetation for golang
 
 Import
 ------
 
-`go.events` available through [gopkg.in](http://labix.org/gopkg.in) interface:
+`events` available through github.com/admpub/events
+interface:
 ```go
-import "gopkg.in/ADone/go.events.v1"
-```
-or directly from github:
-```go
-import "github.com/ADone/go.events"
+import "github.com/admpub/events"
 ```
 
 Usage
@@ -28,15 +22,14 @@ Creating standalone event object:
 event := events.New("eventName")
 event.Meta["key"] = value
 ```
-For `Meta` field see [go.meta](https://github.com/ADone/go.meta)
 
 ### Emitter
 
 Package `emiter` implements `events.Emitter` interface
 ```go
 import (
-	"gopkg.in/ADone/go.events.v1"
-	"gopkg.in/ADone/go.events.v1/emitter"
+	"github.com/admpub/events"
+	"github.com/admpub/events/emitter"
 )
 ```
 
@@ -55,7 +48,7 @@ object := Object{emitter.New()}
 
 Emitter could be created with specific dispatch strategy:
 ```go
-import "gopkg.in/ADone/go.events.v1/dispatcher"
+import "github.com/admpub/events/dispatcher"
 ```
 
 ``` go
@@ -116,8 +109,8 @@ Package `ticker` adds support of periodic events on top of events.Emitter
 
 ```go
 import (
-	"gopkg.in/ADone/go.events.v1/emitter/ticker"
-	"gopkg.in/ADone/go.events.v1/emitter"
+	"github.com/admpub/events/emitter/ticker"
+	"github.com/admpub/events/emitter"
 	"time"
 )
 ```

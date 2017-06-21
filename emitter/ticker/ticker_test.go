@@ -1,10 +1,11 @@
 package ticker
 
 import (
-	"../../../../utils/events"
-	"../../../../utils/events/emitter"
 	"testing"
 	"time"
+
+	"github.com/admpub/events"
+	"github.com/admpub/events/emitter"
 )
 
 type TestDispatcher struct {
