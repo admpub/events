@@ -21,6 +21,7 @@ type Emitter interface {
 	On(string, ...Listener) Emitter //AddEventListener
 	Off(string) Emitter             //RemoveEventListeners
 	Fire(interface{}, int, ...meta.Map) error
+	Events() map[string]Dispatcher
 }
 
 type Dispatcher interface {

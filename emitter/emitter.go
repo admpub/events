@@ -99,3 +99,7 @@ func (emitter Emitter) Fire(e interface{}, mode int, context ...meta.Map) error 
 	emitter.Unlock()
 	return err
 }
+
+func (emitter Emitter) Events() map[string]events.Dispatcher {
+	return emitter.Dispatchers
+}
