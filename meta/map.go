@@ -65,6 +65,14 @@ func (source Map) Fetch(key string, options ...interface{}) (interface{}, error)
 	return nil, fmt.Errorf("Key %s not found in hash", key)
 }
 
+func (source Map) Must(key string, options ...interface{}) interface{} {
+	val, err := source.Fetch(key, options...)
+	if err != nil {
+		panic(err)
+	}
+	return val
+}
+
 func (source Map) String(key string, options ...interface{}) (string, error) {
 	val, err := source.Fetch(key, options...)
 	if err != nil {
