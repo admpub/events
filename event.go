@@ -6,6 +6,17 @@ import (
 	"github.com/admpub/events/meta"
 )
 
+const (
+	//ModeAsync async
+	ModeAsync = iota
+
+	//ModeSync sync
+	ModeSync
+
+	//ModeWait async & sync.Wait
+	ModeWait
+)
+
 type Emitter interface {
 	On(string, ...Listener) Emitter //AddEventListener
 	Off(string) Emitter             //RemoveEventListeners
@@ -73,12 +84,12 @@ func ToMap(key string, value interface{}, args ...interface{}) meta.Map {
 	return context
 }
 
-func Map(context meta.Map, sync ...int) meta.Map {
-	if len(sync) > 0 {
-		switch sync[0] {
-		case 1:
+func Map(context meta.Map, mode ...int) meta.Map {
+	if len(mode) > 0 {
+		switch mode[0] {
+		case ModeSync:
 			context["_sync"] = struct{}{}
-		case 2:
+		case ModeWait:
 			context["_wait"] = struct{}{}
 		}
 	}

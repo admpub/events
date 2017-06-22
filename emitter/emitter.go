@@ -15,6 +15,23 @@ var (
 	DefaultCondEmitter       = New(dispatcher.ConditionalParallelBroadcastFactory)
 )
 
+const (
+	Async = iota
+	Sync
+	Cond
+)
+
+func NewWithType(typ int) *Emitter {
+	switch typ {
+	case Sync:
+		return New(dispatcher.BroadcastFactory)
+	case Cond:
+		return New(dispatcher.ConditionalParallelBroadcastFactory)
+	default:
+		return New(dispatcher.ParallelBroadcastFactory)
+	}
+}
+
 func New(factory ...events.DispatcherFactory) *Emitter {
 	emitter := new(Emitter)
 	emitter.Dispatchers = make(map[string]events.Dispatcher)
