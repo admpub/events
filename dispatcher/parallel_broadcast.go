@@ -16,8 +16,9 @@ func (dispatcher *ParallelBroadcastDispatcher) AddSubscribers(subscribers ...eve
 	dispatcher.Subscribers = append(dispatcher.Subscribers, subscribers...)
 }
 
-func (dispatcher *ParallelBroadcastDispatcher) Dispatch(event events.Event) {
+func (dispatcher *ParallelBroadcastDispatcher) Dispatch(event events.Event) error {
 	for _, subscriber := range dispatcher.Subscribers {
 		go subscriber.Handle(event)
 	}
+	return nil
 }

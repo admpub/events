@@ -66,9 +66,12 @@ func (emitter Emitter) Off(event string) events.Emitter {
 	return emitter
 }
 
-func (emitter Emitter) Fire(e interface{}, context ...meta.Map) {
+func (emitter Emitter) Fire(e interface{}, context ...meta.Map) error {
 	emitter.Lock()
-	var event events.Event
+	var (
+		event events.Event
+		err   error
+	)
 
 	switch e := e.(type) {
 	case string:
@@ -82,7 +85,8 @@ func (emitter Emitter) Fire(e interface{}, context ...meta.Map) {
 	}
 
 	if dispatcher, ok := emitter.Dispatchers[event.Key]; ok {
-		dispatcher.Dispatch(event)
+		err = dispatcher.Dispatch(event)
 	}
 	emitter.Unlock()
+	return err
 }

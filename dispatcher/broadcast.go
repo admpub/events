@@ -16,11 +16,16 @@ func (dispatcher *BroadcastDispatcher) AddSubscribers(subscribers ...events.List
 	dispatcher.Subscribers = append(dispatcher.Subscribers, subscribers...)
 }
 
-func (dispatcher *BroadcastDispatcher) Dispatch(event events.Event) {
+func (dispatcher *BroadcastDispatcher) Dispatch(event events.Event) error {
+	var err error
 	for _, subscriber := range dispatcher.Subscribers {
 		if event.Aborted() {
-			return
+			return err
 		}
-		subscriber.Handle(event)
+		err = subscriber.Handle(event)
+		if err != nil {
+			return err
+		}
 	}
+	return err
 }

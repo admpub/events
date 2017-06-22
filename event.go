@@ -20,30 +20,31 @@ const (
 type Emitter interface {
 	On(string, ...Listener) Emitter //AddEventListener
 	Off(string) Emitter             //RemoveEventListeners
-	Fire(interface{}, ...meta.Map)
+	Fire(interface{}, ...meta.Map) error
 }
 
 type Dispatcher interface {
 	AddSubscribers(...Listener)
-	Dispatch(Event)
+	Dispatch(Event) error
 }
 
 type DispatcherFactory func() Dispatcher
 
 type Listener interface {
-	Handle(Event)
+	Handle(Event) error
 }
 
 type Stream chan Event
 
-func (stream Stream) Handle(event Event) {
+func (stream Stream) Handle(event Event) error {
 	stream <- event
+	return nil
 }
 
-type Callback func(Event)
+type Callback func(Event) error
 
-func (callback Callback) Handle(event Event) {
-	callback(event)
+func (callback Callback) Handle(event Event) error {
+	return callback(event)
 }
 
 func New(name string) Event {

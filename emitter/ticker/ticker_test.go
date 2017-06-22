@@ -16,9 +16,10 @@ type TestDispatcher struct {
 func (handler *TestDispatcher) AddSubscribers(t ...events.Listener) {
 }
 
-func (handler *TestDispatcher) Dispatch(event events.Event) {
+func (handler *TestDispatcher) Dispatch(event events.Event) error {
 	handler.Count++
 	handler.Target = true
+	return nil
 }
 
 func TestNewPeriodicEmitter(t *testing.T) {

@@ -18,14 +18,18 @@ func (dispatcher *ConditionalParallelBroadcastDispatcher) AddSubscribers(subscri
 	dispatcher.Subscribers = append(dispatcher.Subscribers, subscribers...)
 }
 
-func (dispatcher *ConditionalParallelBroadcastDispatcher) Dispatch(event events.Event) {
+func (dispatcher *ConditionalParallelBroadcastDispatcher) Dispatch(event events.Event) error {
+	var err error
 	if _, ok := event.Context["_sync"]; ok {
 		delete(event.Context, "_sync")
 		for _, subscriber := range dispatcher.Subscribers {
 			if event.Aborted() {
-				return
+				return err
 			}
-			subscriber.Handle(event)
+			err = subscriber.Handle(event)
+			if err != nil {
+				return err
+			}
 		}
 	} else if _, ok := event.Context["_wait"]; ok {
 		delete(event.Context, "_wait")
@@ -43,4 +47,5 @@ func (dispatcher *ConditionalParallelBroadcastDispatcher) Dispatch(event events.
 			go subscriber.Handle(event)
 		}
 	}
+	return err
 }

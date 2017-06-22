@@ -10,8 +10,9 @@ type TestHandler struct {
 	Target bool
 }
 
-func (handler *TestHandler) Handle(event events.Event) {
+func (handler *TestHandler) Handle(event events.Event) error {
 	handler.Target = true
+	return nil
 }
 
 func TestBroadcastFactory(t *testing.T) {
