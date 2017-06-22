@@ -66,6 +66,8 @@ func (source *Map) Fetch(key string, options ...interface{}) (interface{}, error
 		source.RUnlock()
 		return value, nil
 	}
+	source.RUnlock()
+	source.Lock()
 	defer source.Unlock()
 	// check value after lock again, may be another thread set it while we were waiting for the lock
 	if value, exists := source.values[key]; exists {

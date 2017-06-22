@@ -20,7 +20,7 @@ const (
 type Emitter interface {
 	On(string, ...Listener) Emitter //AddEventListener
 	Off(string) Emitter             //RemoveEventListeners
-	Fire(interface{}, ...meta.Map) error
+	Fire(interface{}, int, ...meta.Map) error
 }
 
 type Dispatcher interface {
@@ -81,18 +81,6 @@ func ToMap(key string, value interface{}, args ...interface{}) meta.Map {
 			continue
 		}
 		context[key] = args[i]
-	}
-	return context
-}
-
-func Map(context meta.Map, mode ...int) meta.Map {
-	if len(mode) > 0 {
-		switch mode[0] {
-		case ModeSync:
-			context["_sync"] = struct{}{}
-		case ModeWait:
-			context["_wait"] = struct{}{}
-		}
 	}
 	return context
 }

@@ -66,7 +66,7 @@ func (emitter Emitter) Off(event string) events.Emitter {
 	return emitter
 }
 
-func (emitter Emitter) Fire(e interface{}, context ...meta.Map) error {
+func (emitter Emitter) Fire(e interface{}, mode int, context ...meta.Map) error {
 	emitter.Lock()
 	var (
 		event events.Event
@@ -82,6 +82,15 @@ func (emitter Emitter) Fire(e interface{}, context ...meta.Map) error {
 
 	if len(context) > 0 {
 		event.Context = event.Context.Merge(context[0])
+	}
+
+	if mode > -1 {
+		switch mode {
+		case events.ModeSync:
+			event.Context["_sync"] = struct{}{}
+		case events.ModeWait:
+			event.Context["_wait"] = struct{}{}
+		}
 	}
 
 	if dispatcher, ok := emitter.Dispatchers[event.Key]; ok {

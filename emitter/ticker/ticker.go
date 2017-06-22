@@ -10,7 +10,7 @@ import (
 
 type needRestart struct{}
 
-func New(emitter events.Emitter) *PeriodicEmitter {
+func New(emitter events.Emitter, mode ...int) *PeriodicEmitter {
 	restart := make(chan needRestart, 1)
 
 	ticker := &PeriodicEmitter{
@@ -22,7 +22,7 @@ func New(emitter events.Emitter) *PeriodicEmitter {
 		mapping: make(map[int]string),
 	}
 
-	go ticker.run()
+	go ticker.run(mode...)
 
 	return ticker
 }
@@ -87,12 +87,15 @@ func (emitter *PeriodicEmitter) refresh() {
 	}
 }
 
-func (emitter *PeriodicEmitter) run() {
+func (emitter *PeriodicEmitter) run(mode ...int) {
+	if len(mode) < 1 {
+		mode = []int{-1}
+	}
 	for {
 		if index, _, ok := reflect.Select(emitter.timers); index > 0 {
 			if event, exists := emitter.mapping[index]; exists {
 				if ok {
-					emitter.Fire(event)
+					emitter.Fire(event, mode[0])
 				} else {
 					emitter.Lock()
 					delete(emitter.events, event)

@@ -88,8 +88,9 @@ object.On("event", events.Stream(channel))
 ```go
 type Handler struct {}
 
-func (Handler) Handle (events.Event) {
+func (Handler) Handle (events.Event) error {
 	// handle events
+	return nil
 }
 
 object.On("event", Handler{})
@@ -98,8 +99,9 @@ object.On("event", Handler{}, Handler{}).On("anotherEvent", Handler{})
 ```
 * functions
 ```go
-object.On("event", events.Callback(func(event events.Event){
+object.On("event", events.Callback(func(event events.Event) error {
 	// handle event
+	return nil
 }))
 ```
 
