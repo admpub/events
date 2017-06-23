@@ -62,16 +62,16 @@ Emit concrete event object:
 
 ```go
 em := emitter.New()
-em.Fire(events.New("event"))
+em.Fire(events.New("event"), events.ModeAsync)
 ```
 
 Emit event with label & params:
 ```go
-em.Fire("event")
+em.Fire("event", events.ModeSync)
 // or with event params
-em.Fire("event", meta.Map{"key": "value"})
+em.Fire("event", events.ModeSync, meta.Map{"key": "value"})
 // or with plain map
-em.Fire("event", map[string]interface{}{"key": "value"})
+em.Fire("event", events.ModeSync, map[string]interface{}{"key": "value"})
 ````
 > Be carefully with concurrent access to `event.Meta`
 

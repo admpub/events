@@ -61,17 +61,22 @@ emitter.New(dispatcher.ParallelBroadcastFactory)
 
 ```go
 em := emitter.New()
-em.Fire(events.New("event"))
+em.Fire(events.New("event"), events.ModeAsync)
 ```
 
 通过标签和参数发送事件(内部会根据标签名自动创建事件对象):
 ```go
-em.Fire("event")
+em.Fire("event", events.ModeSync)
 // or with event params
-em.Fire("event", meta.Map{"key": "value"})
+em.Fire("event", events.ModeSync, meta.Map{"key": "value"})
 // or with plain map
-em.Fire("event", map[string]interface{}{"key": "value"})
+em.Fire("event", events.ModeSync, map[string]interface{}{"key": "value"})
 ````
+> Fire的第二个参数指定执行方式，目前支持以下三个值：
+> - `events.ModeAsync`: 异步执行。忽略所有错误
+> - `events.ModeSync`: 非异步执行。即依次执行，返回错误时会跳过后续执行
+> - `events.ModeWait`: 异步执行，并等待完成。忽略所有错误
+
 > 在并发时小心访问 `event.Meta`
 
 #### 订阅事件
