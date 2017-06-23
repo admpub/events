@@ -76,7 +76,7 @@ func (event *Event) Aborted() bool {
 
 func ToMap(key string, value interface{}, args ...interface{}) meta.Map {
 	context := meta.Map{key: value}
-	for i, j := 0, len(args); i < j; i += 2 {
+	for i, j := 0, len(args); i < j; i++ {
 		if i%2 == 0 {
 			key = fmt.Sprint(args[i])
 			continue
