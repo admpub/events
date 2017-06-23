@@ -34,7 +34,7 @@ import (
 
 #### 创建发射器
 
-发射器通过可以 `events.Emitter` 接口嵌入到其它的结构体内:
+发射器可以通过 `events.Emitter` 接口嵌入到其它的结构体内:
 ```go
 type Object struct {
 	events.Emitter
