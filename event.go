@@ -20,9 +20,9 @@ const (
 type Emitter interface {
 	On(string, ...Listener) Emitter //AddEventListener
 	Off(string) Emitter             //RemoveEventListeners
-	Has(string) bool
 	Fire(interface{}, int, ...meta.Map) error
 	Events() map[string]Dispatcher
+	HasEvent(string) bool
 }
 
 type Dispatcher interface {

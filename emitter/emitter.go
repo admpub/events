@@ -66,7 +66,7 @@ func (emitter Emitter) Off(event string) events.Emitter {
 	return emitter
 }
 
-func (emitter Emitter) Has(event string) bool {
+func (emitter Emitter) HasEvent(event string) bool {
 	emitter.Lock()
 	_, exists := emitter.Dispatchers[event]
 	emitter.Unlock()
