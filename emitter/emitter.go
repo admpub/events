@@ -66,6 +66,13 @@ func (emitter Emitter) Off(event string) events.Emitter {
 	return emitter
 }
 
+func (emitter Emitter) Has(event string) bool {
+	emitter.Lock()
+	_, exists := emitter.Dispatchers[event]
+	emitter.Unlock()
+	return exists
+}
+
 func (emitter Emitter) Fire(e interface{}, mode int, context ...meta.Map) error {
 	emitter.Lock()
 	var (
