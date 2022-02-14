@@ -1,4 +1,4 @@
-events [简体中文](https://github.com/admpub/events/blob/master/README_zh-CN.md)
+events
 ===========
 
 Package `events` is implementation of [Observer](https://en.wikipedia.org/wiki/Observer_pattern)
@@ -66,8 +66,9 @@ events.NewEmitter(events.WithEventStrategy("event.for.parallel.processing", Para
 You can define custom strategies by implementing `DispatchStrategy` function:
 
 ```go
-customStrategy := func(event events.Event, listeners map[events.Listener]struct{}) {
+customStrategy := func(event events.Event, listeners map[events.Listener]struct{}) error {
 	// ...
+	return nil
 }
 ```
 

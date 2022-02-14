@@ -15,7 +15,7 @@ type EventOption struct {
 func WithContext(context Map) EventOption {
 	return EventOption{func(event *Event) {
 		for key, value := range context {
-			event.Context[key] = value
+			event.Context.Set(key, value)
 		}
 	}}
 }
@@ -26,7 +26,7 @@ func New(data interface{}, options ...EventOption) Event {
 
 	switch value := data.(type) {
 	case string:
-		event = Event{value, Map{}}
+		event = Event{Key: value, Context: Map{}}
 	case Event:
 		event = value
 	}
@@ -58,8 +58,8 @@ func (event *Event) Aborted() bool {
 	return event.aborted
 }
 
-func ToMap(key string, value interface{}, args ...interface{}) param.Store {
-	context := param.Store{key: value}
+func ToMap(key string, value interface{}, args ...interface{}) Map {
+	context := Map{key: value}
 	for i, j := 0, len(args); i < j; i++ {
 		if i%2 == 0 {
 			key = fmt.Sprint(args[i])

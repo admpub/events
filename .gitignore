@@ -2,3 +2,5 @@
 .idea
 *.iml
 *.coverprofile
+go.sum
+go.mod

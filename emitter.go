@@ -4,6 +4,8 @@ import (
 	"sync"
 )
 
+var Default = NewEmitter()
+
 // EmitterOption defines option for Emitter
 type EmitterOption struct {
 	apply func(*Emitter)
@@ -48,9 +50,18 @@ type Emitter struct {
 	dispatchers map[string]*Dispatcher
 }
 
+type Emitterer interface {
+	On(string, ...Listener) Emitterer
+	AddEventListener(handler Listener, events ...string)
+	Off(string) Emitterer
+	RemoveEventListener(handler Listener)
+	Fire(interface{}) error
+	HasEvent(string) bool
+}
+
 // On subscribes listeners to provided event and return emitter
 // usefull for chain subscriptions
-func (emitter *Emitter) On(event string, handlers ...Listener) *Emitter {
+func (emitter *Emitter) On(event string, handlers ...Listener) Emitterer {
 	emitter.AddEventListeners(event, handlers...)
 	return emitter
 }
@@ -58,20 +69,18 @@ func (emitter *Emitter) On(event string, handlers ...Listener) *Emitter {
 // AddEventListeners subscribes listeners to provided event
 func (emitter *Emitter) AddEventListeners(event string, handlers ...Listener) {
 	emitter.guard.Lock()
-	defer emitter.guard.Unlock()
 
 	if _, exists := emitter.dispatchers[event]; !exists {
 		emitter.dispatchers[event] = NewDispatcher(emitter.strategy)
 	}
-
 	emitter.dispatchers[event].AddSubscribers(handlers)
+
+	emitter.guard.Unlock()
 }
 
 // AddEventListener subscribes listeners to provided events
 func (emitter *Emitter) AddEventListener(handler Listener, events ...string) {
 	emitter.guard.Lock()
-	defer emitter.guard.Unlock()
-
 	for _, event := range events {
 		if _, exists := emitter.dispatchers[event]; !exists {
 			emitter.dispatchers[event] = NewDispatcher(emitter.strategy)
@@ -79,30 +88,42 @@ func (emitter *Emitter) AddEventListener(handler Listener, events ...string) {
 
 		emitter.dispatchers[event].AddSubscriber(handler)
 	}
+	emitter.guard.Unlock()
+}
+
+// Off unsubscribe all listeners from provided event
+func (emitter *Emitter) Off(event string) Emitterer {
+	emitter.RemoveEventListeners(event)
+	return emitter
 }
 
 // RemoveEventListeners unsubscribe all listeners from provided event
 func (emitter *Emitter) RemoveEventListeners(event string) {
 	emitter.guard.Lock()
-	defer emitter.guard.Unlock()
-
 	delete(emitter.dispatchers, event)
+	emitter.guard.Unlock()
 }
 
 // RemoveEventListener unsubscribe provided listener from all events
 func (emitter *Emitter) RemoveEventListener(handler Listener) {
 	emitter.guard.Lock()
-	defer emitter.guard.Unlock()
-
 	for _, dispatcher := range emitter.dispatchers {
 		dispatcher.RemoveSubscriber(handler)
 	}
+	emitter.guard.Unlock()
 }
 
 // Fire start delivering event to listeners
-func (emitter *Emitter) Fire(data interface{}) {
+func (emitter *Emitter) Fire(data interface{}) (err error) {
 	event := New(data)
 	if dispatcher, ok := emitter.dispatchers[event.Key]; ok {
-		dispatcher.Dispatch(event)
+		err = dispatcher.Dispatch(event)
 	}
+	return
+}
+
+// HasEvent ...
+func (emitter *Emitter) HasEvent(event string) bool {
+	_, ok := emitter.dispatchers[event]
+	return ok
 }

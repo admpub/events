@@ -2,6 +2,13 @@ package events
 
 var value = struct{}{}
 
+type Dispatcherer interface {
+	AddSubscriber(handler Listener)
+	AddSubscribers([]Listener)
+	RemoveSubscriber(handler Listener)
+	Dispatch(Event) error
+}
+
 // NewDispatcher creates new dispatcher
 func NewDispatcher(strategy DispatchStrategy) *Dispatcher {
 	dispatcher := new(Dispatcher)
@@ -35,6 +42,6 @@ func (dispatcher *Dispatcher) RemoveSubscriber(handler Listener) {
 }
 
 // Dispatch deliver event to listeners using strategy
-func (dispatcher *Dispatcher) Dispatch(event Event) {
-	dispatcher.strategy(event, dispatcher.subscribers)
+func (dispatcher *Dispatcher) Dispatch(event Event) error {
+	return dispatcher.strategy(event, dispatcher.subscribers)
 }
