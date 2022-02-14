@@ -6,56 +6,39 @@ import (
 	"github.com/webx-top/echo/param"
 )
 
-const (
-	//ModeAsync async
-	ModeAsync = iota
-
-	//ModeSync sync
-	ModeSync
-
-	//ModeWait async & sync.Wait
-	ModeWait
-)
-
-type Emitter interface {
-	On(string, ...Listener) Emitter //AddEventListener
-	Off(string) Emitter             //RemoveEventListeners
-	Fire(interface{}, int, ...param.Store) error
-	Events() map[string]Dispatcher
-	HasEvent(string) bool
+// EventOption for event
+type EventOption struct {
+	apply func(*Event)
 }
 
-type Dispatcher interface {
-	AddSubscribers(...Listener)
-	Dispatch(Event) error
+// WithContext sets event metadata
+func WithContext(context Map) EventOption {
+	return EventOption{func(event *Event) {
+		for key, value := range context {
+			event.Context[key] = value
+		}
+	}}
 }
 
-type DispatcherFactory func() Dispatcher
+// New create new event with provided name and options
+func New(data interface{}, options ...EventOption) Event {
+	var event Event
 
-type Listener interface {
-	Handle(Event) error
-}
-
-type Stream chan Event
-
-func (stream Stream) Handle(event Event) error {
-	stream <- event
-	return nil
-}
-
-type Callback func(Event) error
-
-func (callback Callback) Handle(event Event) error {
-	return callback(event)
-}
-
-func New(name string) Event {
-	return Event{
-		Key:     name,
-		Context: param.Store{},
+	switch value := data.(type) {
+	case string:
+		event = Event{value, Map{}}
+	case Event:
+		event = value
 	}
+
+	for _, option := range options {
+		option.apply(&event)
+	}
+
+	return event
 }
 
+// Event
 type Event struct {
 	Key     string
 	Context param.Store
