@@ -1,6 +1,7 @@
 package events
 
 import (
+	"sort"
 	"sync"
 )
 
@@ -56,6 +57,7 @@ type Emitterer interface {
 	Off(string) Emitterer
 	RemoveEventListener(handler Listener)
 	Fire(interface{}) error
+	EventNames() []string
 	HasEvent(string) bool
 }
 
@@ -120,6 +122,18 @@ func (emitter *Emitter) Fire(data interface{}) (err error) {
 		err = dispatcher.Dispatch(event)
 	}
 	return
+}
+
+// EventNames ...
+func (emitter *Emitter) EventNames() []string {
+	names := make([]string, len(emitter.dispatchers))
+	var i int
+	for name := range emitter.dispatchers {
+		names[i] = name
+		i++
+	}
+	sort.Strings(names)
+	return names
 }
 
 // HasEvent ...
