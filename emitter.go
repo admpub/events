@@ -57,6 +57,8 @@ type Emitterer interface {
 	Off(string) Emitterer
 	RemoveEventListener(handler Listener)
 	Fire(interface{}) error
+	FireByName(name string, options ...EventOption) error
+	FireByNameWithMap(name string, data Map) error
 	EventNames() []string
 	HasEvent(string) bool
 }
@@ -122,6 +124,14 @@ func (emitter *Emitter) Fire(data interface{}) (err error) {
 		err = dispatcher.Dispatch(event)
 	}
 	return
+}
+
+func (emitter *Emitter) FireByName(name string, options ...EventOption) error {
+	return emitter.Fire(New(name, options...))
+}
+
+func (emitter *Emitter) FireByNameWithMap(name string, data Map) error {
+	return emitter.Fire(New(name, WithContext(data)))
 }
 
 // EventNames ...
