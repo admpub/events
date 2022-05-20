@@ -25,6 +25,39 @@ func (stream Stream) Handle(event Event) error {
 	return nil
 }
 
+type Streamer interface {
+	Listener
+	ID
+	Chan() <-chan Event
+}
+
+func StreamWithID(id string) *stream {
+	return &stream{
+		ch: make(chan Event),
+		id: id,
+	}
+}
+
+// Stream implements Listener interface on channel
+type stream struct {
+	ch chan Event
+	id string
+}
+
+// Handle Listener
+func (s *stream) Handle(event Event) error {
+	s.ch <- event
+	return nil
+}
+
+func (s *stream) ID() string {
+	return s.id
+}
+
+func (s *stream) Chan() <-chan Event {
+	return s.ch
+}
+
 // Callback implements Listener interface on function
 func Callback(function func(Event) error, id ...string) Listener {
 	var _id string
@@ -40,11 +73,11 @@ type callback struct {
 }
 
 // Handle Listener
-func (callback callback) Handle(event Event) error {
-	return (*callback.function)(event)
+func (c callback) Handle(event Event) error {
+	return (*c.function)(event)
 }
 
 // ID Listener ID
-func (callback callback) ID() string {
-	return callback.id
+func (c callback) ID() string {
+	return c.id
 }
