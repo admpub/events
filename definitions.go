@@ -81,3 +81,16 @@ func (c callback) Handle(event Event) error {
 func (c callback) ID() string {
 	return c.id
 }
+
+func WithID(l Listener, id string) Listener {
+	return &listenerWithID{Listener: l, id: id}
+}
+
+type listenerWithID struct {
+	Listener
+	id string
+}
+
+func (l listenerWithID) ID() string {
+	return l.id
+}
