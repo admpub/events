@@ -33,10 +33,21 @@ var _ = Describe("Event", func() {
 		Expect(err).To(BeNil())
 		Expect(i).To(BeEquivalentTo(3))
 
+		var j int
 		emitter.On("test", events.Callback(func(event events.Event) error {
+			j++
 			return errors.New(`testError`)
-		}))
+		}, `testError`))
 		err = emitter.Fire("test")
 		Expect(err).To(MatchError(`testError`))
+		Expect(j).To(BeEquivalentTo(1))
+
+		emitter.On("test", events.Callback(func(event events.Event) error {
+			j++
+			return errors.New(`testError2`)
+		}, `testError`))
+		err = emitter.Fire("test")
+		Expect(err).To(MatchError(`testError2`))
+		Expect(j).To(BeEquivalentTo(2))
 	})
 })
