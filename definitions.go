@@ -31,9 +31,9 @@ type Streamer interface {
 	Chan() <-chan Event
 }
 
-func StreamWithID(id string) *stream {
+func StreamWithID(ch chan Event, id string) Streamer {
 	return &stream{
-		ch: make(chan Event),
+		ch: ch,
 		id: id,
 	}
 }
