@@ -48,6 +48,10 @@ func NewEvent[V any](key string, ctx V) *XEvent[V] {
 type IEvent interface {
 	String() string
 	Abort() IEvent
+	Aborted
+}
+
+type Aborted interface {
 	Aborted() bool
 }
 

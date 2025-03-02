@@ -7,10 +7,10 @@ import (
 )
 
 // NewTicker creates new PeriodicEmitter
-func NewTicker(emitter *Emitter) *PeriodicEmitter {
+func NewTicker[V any](emitter *Emitter[V]) *PeriodicEmitter[V] {
 	actions := make(chan func())
 
-	ticker := &PeriodicEmitter{
+	ticker := &PeriodicEmitter[V]{
 		Emitter: emitter,
 		actions: actions,
 		events:  make(map[string]*time.Ticker),
@@ -24,8 +24,8 @@ func NewTicker(emitter *Emitter) *PeriodicEmitter {
 }
 
 // PeriodicEmitter is a source of periodic events
-type PeriodicEmitter struct {
-	*Emitter
+type PeriodicEmitter[V any] struct {
+	*Emitter[V]
 
 	stopOnce sync.Once
 	actions  chan func()
@@ -34,14 +34,14 @@ type PeriodicEmitter struct {
 	timers   []reflect.SelectCase
 }
 
-func (emitter *PeriodicEmitter) Stop() {
+func (emitter *PeriodicEmitter[V]) Stop() {
 	emitter.stopOnce.Do(func() {
 		close(emitter.actions)
 	})
 }
 
 // RegisterEvent registers new periodic event
-func (emitter *PeriodicEmitter) RegisterEvent(event string, period interface{}, handlers ...Listener) {
+func (emitter *PeriodicEmitter[V]) RegisterEvent(event string, period interface{}, handlers ...Listener[V]) {
 	var timer *time.Ticker
 	switch value := period.(type) {
 	case time.Duration:
@@ -66,7 +66,7 @@ func (emitter *PeriodicEmitter) RegisterEvent(event string, period interface{}, 
 }
 
 // RemoveEvent removes provided event
-func (emitter *PeriodicEmitter) RemoveEvent(event string) {
+func (emitter *PeriodicEmitter[V]) RemoveEvent(event string) {
 	emitter.actions <- func() {
 		if emitter.remove(event) {
 			emitter.refresh()
@@ -74,7 +74,7 @@ func (emitter *PeriodicEmitter) RemoveEvent(event string) {
 	}
 }
 
-func (emitter *PeriodicEmitter) remove(event string) bool {
+func (emitter *PeriodicEmitter[V]) remove(event string) bool {
 	timer, exists := emitter.events[event]
 	if !exists {
 		return false
@@ -87,13 +87,13 @@ func (emitter *PeriodicEmitter) remove(event string) bool {
 	return true
 }
 
-func (emitter *PeriodicEmitter) stop() {
+func (emitter *PeriodicEmitter[V]) stop() {
 	for event := range emitter.events {
 		emitter.remove(event)
 	}
 }
 
-func (emitter *PeriodicEmitter) refresh() {
+func (emitter *PeriodicEmitter[V]) refresh() {
 	emitter.timers = []reflect.SelectCase{emitter.timers[0]}
 
 	for event, timer := range emitter.events {
@@ -105,7 +105,7 @@ func (emitter *PeriodicEmitter) refresh() {
 	}
 }
 
-func (emitter *PeriodicEmitter) run() {
+func (emitter *PeriodicEmitter[V]) run() {
 	for {
 		index, value, opened := reflect.Select(emitter.timers)
 
@@ -120,7 +120,7 @@ func (emitter *PeriodicEmitter) run() {
 		default:
 			if event, exists := emitter.mapping[index]; exists {
 				if opened {
-					emitter.Fire(event)
+					emitter.Fire(event, value.Interface().(V))
 				} else {
 					delete(emitter.events, event)
 					emitter.refresh()

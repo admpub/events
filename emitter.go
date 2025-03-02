@@ -5,16 +5,16 @@ import (
 	"sync"
 )
 
-var Default = NewEmitter()
+var Default = NewEmitter[Event]()
 
 // EmitterOption defines option for Emitter
-type EmitterOption struct {
-	apply func(*Emitter)
+type EmitterOption[V any] struct {
+	apply func(*Emitter[V])
 }
 
 // WithEventStategy sets delivery strategy for provided event
-func WithEventStategy(event string, strategy DispatchStrategy) EmitterOption {
-	return EmitterOption{func(emitter *Emitter) {
+func WithEventStategy[V any](event string, strategy DispatchStrategy[V]) EmitterOption[V] {
+	return EmitterOption[V]{func(emitter *Emitter[V]) {
 		if dispatcher, exists := emitter.dispatchers[event]; exists {
 			dispatcher.strategy = strategy
 			return
@@ -25,17 +25,17 @@ func WithEventStategy(event string, strategy DispatchStrategy) EmitterOption {
 }
 
 // WithDefaultStrategy sets default delivery strategy for event emitter
-func WithDefaultStrategy(strategy DispatchStrategy) EmitterOption {
-	return EmitterOption{func(emitter *Emitter) {
+func WithDefaultStrategy[V any](strategy DispatchStrategy[V]) EmitterOption[V] {
+	return EmitterOption[V]{func(emitter *Emitter[V]) {
 		emitter.strategy = strategy
 	}}
 }
 
 // NewEmitter creates new event emitter
-func NewEmitter(options ...EmitterOption) *Emitter {
-	emitter := new(Emitter)
-	emitter.strategy = Broadcast
-	emitter.dispatchers = make(map[string]*Dispatcher)
+func NewEmitter[V any](options ...EmitterOption[V]) *Emitter[V] {
+	emitter := new(Emitter[V])
+	emitter.strategy = Broadcast[V]
+	emitter.dispatchers = make(map[string]*Dispatcher[V])
 
 	for _, option := range options {
 		option.apply(emitter)
@@ -45,33 +45,31 @@ func NewEmitter(options ...EmitterOption) *Emitter {
 }
 
 // Emitter
-type Emitter struct {
+type Emitter[V any] struct {
 	guard       sync.Mutex
-	strategy    DispatchStrategy
-	dispatchers map[string]*Dispatcher
+	strategy    DispatchStrategy[V]
+	dispatchers map[string]*Dispatcher[V]
 }
 
-type Emitterer interface {
-	On(string, ...Listener) Emitterer
-	AddEventListener(handler Listener, events ...string)
-	Off(string) Emitterer
-	RemoveEventListener(handler Listener)
-	Fire(interface{}) error
-	FireByName(name string, options ...EventOption) error
-	FireByNameWithMap(name string, data Map) error
+type Emitterer[V any] interface {
+	On(string, ...Listener[V]) Emitterer[V]
+	AddEventListener(handler Listener[V], events ...string)
+	Off(string) Emitterer[V]
+	RemoveEventListener(handler Listener[V])
+	Fire(string, V) error
 	EventNames() []string
 	HasEvent(string) bool
 }
 
 // On subscribes listeners to provided event and return emitter
 // usefull for chain subscriptions
-func (emitter *Emitter) On(event string, handlers ...Listener) Emitterer {
+func (emitter *Emitter[V]) On(event string, handlers ...Listener[V]) Emitterer[V] {
 	emitter.AddEventListeners(event, handlers...)
 	return emitter
 }
 
 // AddEventListeners subscribes listeners to provided event
-func (emitter *Emitter) AddEventListeners(event string, handlers ...Listener) {
+func (emitter *Emitter[V]) AddEventListeners(event string, handlers ...Listener[V]) {
 	emitter.guard.Lock()
 
 	if _, exists := emitter.dispatchers[event]; !exists {
@@ -83,7 +81,7 @@ func (emitter *Emitter) AddEventListeners(event string, handlers ...Listener) {
 }
 
 // AddEventListener subscribes listeners to provided events
-func (emitter *Emitter) AddEventListener(handler Listener, events ...string) {
+func (emitter *Emitter[V]) AddEventListener(handler Listener[V], events ...string) {
 	emitter.guard.Lock()
 	for _, event := range events {
 		if _, exists := emitter.dispatchers[event]; !exists {
@@ -96,20 +94,20 @@ func (emitter *Emitter) AddEventListener(handler Listener, events ...string) {
 }
 
 // Off unsubscribe all listeners from provided event
-func (emitter *Emitter) Off(event string) Emitterer {
+func (emitter *Emitter[V]) Off(event string) Emitterer[V] {
 	emitter.RemoveEventListeners(event)
 	return emitter
 }
 
 // RemoveEventListeners unsubscribe all listeners from provided event
-func (emitter *Emitter) RemoveEventListeners(event string) {
+func (emitter *Emitter[V]) RemoveEventListeners(event string) {
 	emitter.guard.Lock()
 	delete(emitter.dispatchers, event)
 	emitter.guard.Unlock()
 }
 
 // RemoveEventListener unsubscribe provided listener from all events
-func (emitter *Emitter) RemoveEventListener(handler Listener) {
+func (emitter *Emitter[V]) RemoveEventListener(handler Listener[V]) {
 	emitter.guard.Lock()
 	for _, dispatcher := range emitter.dispatchers {
 		dispatcher.RemoveSubscriber(handler)
@@ -118,27 +116,15 @@ func (emitter *Emitter) RemoveEventListener(handler Listener) {
 }
 
 // Fire start delivering event to listeners
-func (emitter *Emitter) Fire(data interface{}) (err error) {
-	event, ok := data.(IEvent)
-	if !ok {
-		event = New(data)
-	}
-	if dispatcher, ok := emitter.dispatchers[event.String()]; ok {
-		err = dispatcher.Dispatch(event)
+func (emitter *Emitter[V]) Fire(name string, data V) (err error) {
+	if dispatcher, ok := emitter.dispatchers[name]; ok {
+		err = dispatcher.Dispatch(data)
 	}
 	return
 }
 
-func (emitter *Emitter) FireByName(name string, options ...EventOption) error {
-	return emitter.Fire(New(name, options...))
-}
-
-func (emitter *Emitter) FireByNameWithMap(name string, data Map) error {
-	return emitter.Fire(New(name, WithContext(data)))
-}
-
 // EventNames ...
-func (emitter *Emitter) EventNames() []string {
+func (emitter *Emitter[V]) EventNames() []string {
 	names := make([]string, len(emitter.dispatchers))
 	var i int
 	for name := range emitter.dispatchers {
@@ -150,7 +136,7 @@ func (emitter *Emitter) EventNames() []string {
 }
 
 // HasEvent ...
-func (emitter *Emitter) HasEvent(event string) bool {
+func (emitter *Emitter[V]) HasEvent(event string) bool {
 	_, ok := emitter.dispatchers[event]
 	return ok
 }
