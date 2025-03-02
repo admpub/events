@@ -20,7 +20,7 @@ func WithEventStategy[V any](event string, strategy DispatchStrategy[V]) Emitter
 			return
 		}
 
-		emitter.dispatchers[event] = NewDispatcher(strategy)
+		emitter.dispatchers[event] = NewDispatcher[V](strategy)
 	}}
 }
 
