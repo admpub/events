@@ -21,7 +21,7 @@ func WithContext(context Map) EventOption {
 }
 
 // New create new event with provided name and options
-func New(data interface{}, options ...EventOption) Event {
+func New(data interface{}, options ...EventOption) *Event {
 	var event Event
 
 	switch value := data.(type) {
@@ -35,7 +35,40 @@ func New(data interface{}, options ...EventOption) Event {
 		option.apply(&event)
 	}
 
+	return &event
+}
+
+func NewEvent[V any](key string, ctx V) *XEvent[V] {
+	return &XEvent[V]{
+		Key:     key,
+		Context: ctx,
+	}
+}
+
+type IEvent interface {
+	String() string
+	Abort() IEvent
+	Aborted() bool
+}
+
+// Event
+type XEvent[V any] struct {
+	Key     string
+	Context V
+	aborted bool
+}
+
+func (event *XEvent[V]) String() string {
+	return event.Key
+}
+
+func (event *XEvent[V]) Abort() IEvent {
+	event.aborted = true
 	return event
+}
+
+func (event *XEvent[V]) Aborted() bool {
+	return event.aborted
 }
 
 // Event
@@ -49,7 +82,7 @@ func (event *Event) String() string {
 	return event.Key
 }
 
-func (event *Event) Abort() *Event {
+func (event *Event) Abort() IEvent {
 	event.aborted = true
 	return event
 }

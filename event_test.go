@@ -11,7 +11,7 @@ import (
 
 var _ = Describe("Event", func() {
 	It("should create event object", func() {
-		Expect(events.New("test")).To(BeEquivalentTo(events.Event{Key: "test", Context: events.Map{}}))
+		Expect(events.New("test")).To(BeEquivalentTo(&events.Event{Key: "test", Context: events.Map{}}))
 	})
 
 	It("should subscribe callback to event", func() {

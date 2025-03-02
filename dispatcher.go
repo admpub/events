@@ -57,6 +57,6 @@ func (dispatcher *Dispatcher) RemoveSubscriber(handler Listener) {
 }
 
 // Dispatch deliver event to listeners using strategy
-func (dispatcher *Dispatcher) Dispatch(event Event) error {
+func (dispatcher *Dispatcher) Dispatch(event IEvent) error {
 	return dispatcher.strategy(event, dispatcher.subscribers)
 }

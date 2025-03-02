@@ -119,8 +119,11 @@ func (emitter *Emitter) RemoveEventListener(handler Listener) {
 
 // Fire start delivering event to listeners
 func (emitter *Emitter) Fire(data interface{}) (err error) {
-	event := New(data)
-	if dispatcher, ok := emitter.dispatchers[event.Key]; ok {
+	event, ok := data.(IEvent)
+	if !ok {
+		event = New(data)
+	}
+	if dispatcher, ok := emitter.dispatchers[event.String()]; ok {
 		err = dispatcher.Dispatch(event)
 	}
 	return
